@@ -1,8 +1,9 @@
 import requests
+import json
 
 
 class Downloader:
-    def __init__(self, Content: str, filePath: str):
+    def __init__(self, Content: str | bytes, filePath: str):
         pass
 
 class API_HANDLER:
@@ -18,12 +19,14 @@ class API_HANDLER:
         return RESPONSE_CONTENT
 
     def getFullPDF(self, title: str):
-        self.ENDPOINT: str = f"{self.URL}/page/pdf/{title}/a4"
-
+        self.ENDPOINT: str = f"{self.URL}/page/pdf/{title}"
+        
         RESPONSE: requests.Response = requests.get(self.ENDPOINT)
-        RESPONSE_JSON = RESPONSE.json()
+        RESPONSE_CONTENT: bytes = RESPONSE.content
+        FILE_NAMES: str = dict(RESPONSE.headers)["content-disposition"]
+        PDF_FILE_NAME: str = FILE_NAMES.split(';')[1].split('"')[1]
 
-        # print(RESPONSE_JSON)
+        return (RESPONSE_CONTENT, PDF_FILE_NAME)
 
     def getSummary(self, title: str):
         self.ENDPOINT: str = f"{self.URL}/page/summary/{title}"
@@ -36,5 +39,4 @@ class API_HANDLER:
 
 if __name__ == "__main__":
     API: API_HANDLER = API_HANDLER()
-    print(API.getFullHTML("Earth"))
-
+    print(API.getFullPDF("Earth"))
