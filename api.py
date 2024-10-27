@@ -18,7 +18,7 @@ class API_HANDLER:
 
         return RESPONSE_CONTENT
 
-    def getFullPDF(self, title: str):
+    def getFullPDF(self, title: str) -> tuple[bytes, str]:
         self.ENDPOINT: str = f"{self.URL}/page/pdf/{title}"
         
         RESPONSE: requests.Response = requests.get(self.ENDPOINT)
@@ -28,15 +28,16 @@ class API_HANDLER:
 
         return (RESPONSE_CONTENT, PDF_FILE_NAME)
 
-    def getSummary(self, title: str):
+    def getSummary(self, title: str) -> str:
         self.ENDPOINT: str = f"{self.URL}/page/summary/{title}"
 
         RESPONSE: requests.Response = requests.get(self.ENDPOINT)
         RESPONSE_JSON = RESPONSE.json()
+        SUMMARY: str = str(RESPONSE_JSON["extract"])
 
-        # print(RESPONSE_JSON)
+        return SUMMARY
 
 
 if __name__ == "__main__":
     API: API_HANDLER = API_HANDLER()
-    print(API.getFullPDF("Earth"))
+    print(API.getSummary("Earth"))
