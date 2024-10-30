@@ -1,9 +1,36 @@
 from telebot.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import API_KEY
 import telebot
+import api
 
 
 BOT: telebot.TeleBot = telebot.TeleBot(API_KEY)
+TITLES: dict[int, str] = {}
+
+def download_article(message:Message, Title:str, OutType:str):
+    user_id: int = message.from_user.id
+    chat_id: int = message.chat.id
+    
+    API: api.API_HANDLER = api.API_HANDLER()
+
+    match OutType:
+        case "html":
+            CONTENT = API.getFullHTML(Title)
+            FILENAME = f"{user_id}.html"
+            DONWLOADER: api.Downloader = api.Downloader(CONTENT, f"./{FILENAME}")
+
+            send_file(user_id, chat_id, "html")
+
+        case "pdf":
+            CONTENT = API.getFullPDF(Title)
+            FILENAME = f"{user_id}.pdf"
+            DONWLOADER: api.Downloader = api.Downloader(CONTENT, f"./{FILENAME}")
+
+            send_file(user_id, chat_id, "pdf")
+
+def send_file(user_id: int, chat_id: int, file_type: str):
+    with open(f"./{user_id}.{file_type}", "rb") as document:
+        BOT.send_document(chat_id, document, timeout=180)
 
 def Output_Markup():
     markup = InlineKeyboardMarkup()
@@ -20,14 +47,13 @@ def Output_Markup():
 @BOT.callback_query_handler(func=lambda call:True)
 def get_output_type(call: CallbackQuery):
     if call.data == "html":
-        print("html")
+        download_article(call.message, TITLES[call.message.chat.id], "html")
 
     elif call.data == "pdf":
-        print("pdf")
+        download_article(call.message, TITLES[call.message.chat.id], "pdf")
 
     elif call.data == "summary":
-        print("summary")
-
+        pass
 
 @BOT.message_handler(commands=["start"])
 def start_msg(message) -> None:
@@ -36,6 +62,8 @@ def start_msg(message) -> None:
 @BOT.message_handler(func=lambda message:True)
 def get_Article_Title(message:Message) -> None:
     TITLE: str = str(message.text)
+    TITLES[message.from_user.id] = TITLE
+
     BOT.reply_to(message, f"Received title: {TITLE}")
 
     BOT.send_message(
@@ -44,5 +72,5 @@ def get_Article_Title(message:Message) -> None:
         reply_markup=Output_Markup()
     )
 
-BOT.infinity_polling(timeout=None)
+BOT.infinity_polling()
 
