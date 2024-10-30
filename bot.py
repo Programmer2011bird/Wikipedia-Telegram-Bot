@@ -29,6 +29,14 @@ def download_article(message:Message, Title:str, OutType:str):
 
             send_file(user_id, chat_id, "pdf")
 
+def send_summary(Title: str, chat_id: int):
+    API: api.API_HANDLER = api.API_HANDLER()
+    CONTENT: str = API.getSummary(Title)
+
+    BOT.send_message(chat_id, CONTENT)
+
+    TITLES.pop(chat_id)
+
 def send_file(user_id: int, chat_id: int, file_type: str):
     FilePath: str = f"./{user_id}.{file_type}"
     
@@ -36,6 +44,7 @@ def send_file(user_id: int, chat_id: int, file_type: str):
         BOT.send_document(chat_id, document, timeout=180)
 
     remove(FilePath)
+    TITLES.pop(chat_id)
 
 def Output_Markup():
     markup = InlineKeyboardMarkup()
@@ -58,7 +67,7 @@ def get_output_type(call: CallbackQuery):
         download_article(call.message, TITLES[call.message.chat.id], "pdf")
 
     elif call.data == "summary":
-        pass
+        send_summary(TITLES[call.message.chat.id], call.message.chat.id)
 
 @BOT.message_handler(commands=["start"])
 def start_msg(message) -> None:
@@ -68,8 +77,6 @@ def start_msg(message) -> None:
 def get_Article_Title(message:Message) -> None:
     TITLE: str = str(message.text)
     TITLES[message.from_user.id] = TITLE
-
-    BOT.reply_to(message, f"Received title: {TITLE}")
 
     BOT.send_message(
         message.chat.id,
