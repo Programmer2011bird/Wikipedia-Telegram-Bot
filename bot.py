@@ -16,15 +16,15 @@ def download_article(message:Message, Title:str, OutType:str):
 
     match OutType:
         case "html":
-            CONTENT = API.getFullHTML(Title)
-            FILENAME = f"{user_id}.html"
-            DONWLOADER: api.Downloader = api.Downloader(CONTENT, f"./{FILENAME}")
+            F_CONTENT: str = API.getFullHTML(Title)
+            FILENAME: str = f"{user_id}.html"
+            DONWLOADER: api.Downloader = api.Downloader(F_CONTENT, f"./{FILENAME}")
 
             send_file(user_id, chat_id, "html")
 
         case "pdf":
-            CONTENT = API.getFullPDF(Title)
-            FILENAME = f"{user_id}.pdf"
+            CONTENT: bytes = API.getFullPDF(Title)
+            FILENAME: str = f"{user_id}.pdf"
             DONWLOADER: api.Downloader = api.Downloader(CONTENT, f"./{FILENAME}")
 
             send_file(user_id, chat_id, "pdf")
@@ -47,10 +47,10 @@ def send_file(user_id: int, chat_id: int, file_type: str):
     TITLES.pop(chat_id)
 
 def Output_Markup():
-    markup = InlineKeyboardMarkup()
-    button1 = InlineKeyboardButton("Full Article - HTML File", callback_data="html")
-    button2 = InlineKeyboardButton("Full Article - PDF File", callback_data="pdf")
-    button3 = InlineKeyboardButton("Summary - No File", callback_data="summary")
+    markup: InlineKeyboardMarkup = InlineKeyboardMarkup()
+    button1: InlineKeyboardButton = InlineKeyboardButton("Full Article - HTML File", callback_data="html")
+    button2: InlineKeyboardButton = InlineKeyboardButton("Full Article - PDF File", callback_data="pdf")
+    button3: InlineKeyboardButton = InlineKeyboardButton("Summary - No File", callback_data="summary")
 
     markup.add(button1)
     markup.add(button2)
@@ -70,7 +70,7 @@ def get_output_type(call: CallbackQuery):
         send_summary(TITLES[call.message.chat.id], call.message.chat.id)
 
 @BOT.message_handler(commands=["start"])
-def start_msg(message) -> None:
+def start_msg(message:Message) -> None:
     BOT.reply_to(message, "Welcome to WikiPedia Telegram Bot, To Start, Please Send The Title Of The Article")
 
 @BOT.message_handler(func=lambda message:True)
@@ -85,4 +85,3 @@ def get_Article_Title(message:Message) -> None:
     )
 
 BOT.infinity_polling()
-
