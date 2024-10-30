@@ -1,5 +1,6 @@
 from telebot.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
 from configs import API_KEY
+from os import remove
 import telebot
 import api
 
@@ -29,8 +30,12 @@ def download_article(message:Message, Title:str, OutType:str):
             send_file(user_id, chat_id, "pdf")
 
 def send_file(user_id: int, chat_id: int, file_type: str):
-    with open(f"./{user_id}.{file_type}", "rb") as document:
+    FilePath: str = f"./{user_id}.{file_type}"
+    
+    with open(FilePath, "rb") as document:
         BOT.send_document(chat_id, document, timeout=180)
+
+    remove(FilePath)
 
 def Output_Markup():
     markup = InlineKeyboardMarkup()
