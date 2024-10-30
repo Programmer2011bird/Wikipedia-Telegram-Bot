@@ -8,7 +8,7 @@ import api
 BOT: telebot.TeleBot = telebot.TeleBot(API_KEY)
 TITLES: dict[int, str] = {}
 
-def download_article(message:Message, Title:str, OutType:str):
+def download_article(message:Message, Title:str, OutType:str) -> None:
     user_id: int = message.from_user.id
     chat_id: int = message.chat.id
     
@@ -29,7 +29,7 @@ def download_article(message:Message, Title:str, OutType:str):
 
             send_file(user_id, chat_id, "pdf")
 
-def send_summary(Title: str, chat_id: int):
+def send_summary(Title: str, chat_id: int) -> None:
     API: api.API_HANDLER = api.API_HANDLER()
     CONTENT: str = API.getSummary(Title)
 
@@ -37,7 +37,7 @@ def send_summary(Title: str, chat_id: int):
 
     TITLES.pop(chat_id)
 
-def send_file(user_id: int, chat_id: int, file_type: str):
+def send_file(user_id: int, chat_id: int, file_type: str) -> None:
     FilePath: str = f"./{user_id}.{file_type}"
     
     with open(FilePath, "rb") as document:
@@ -46,7 +46,7 @@ def send_file(user_id: int, chat_id: int, file_type: str):
     remove(FilePath)
     TITLES.pop(chat_id)
 
-def Output_Markup():
+def Output_Markup() -> InlineKeyboardMarkup:
     markup: InlineKeyboardMarkup = InlineKeyboardMarkup()
     button1: InlineKeyboardButton = InlineKeyboardButton("Full Article - HTML File", callback_data="html")
     button2: InlineKeyboardButton = InlineKeyboardButton("Full Article - PDF File", callback_data="pdf")
@@ -59,7 +59,7 @@ def Output_Markup():
     return markup
 
 @BOT.callback_query_handler(func=lambda call:True)
-def get_output_type(call: CallbackQuery):
+def get_output_type(call: CallbackQuery) -> None:
     if call.data == "html":
         download_article(call.message, TITLES[call.message.chat.id], "html")
 
